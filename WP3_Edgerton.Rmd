@@ -1,0 +1,194 @@
+---
+title: "WP3 Submission"
+author: "Meghan Edgerton"
+date: "2023-02-04"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r code1, echo = FALSE}
+
+library(dplyr)
+library(ggplot2)
+library(rmarkdown)
+library(gridExtra)
+library(scales)
+
+path <- "/Users/meghanedgerton/Documents/DataVizINFO526/National_USFS_Fire_Perimeter_(Feature_Layer).csv"
+
+data <- read.csv(path)
+
+
+# Filtering data between the years of 1922- 2021, and removing fires that were recorded as 0 acres
+
+data <- data %>% filter(FIREYEAR < 2022 & FIREYEAR > 1921 & TOTALACRES > 0) 
+
+# How has wildfire size changed over time?
+
+df1 <- data.frame(year = data$FIREYEAR,
+                  totalacres = data$TOTALACRES)
+
+q1 <- df1 %>% group_by(year) %>% summarize(avg = mean(totalacres, na.rm = TRUE))
+
+
+p1 <- ggplot(q1, aes(x=year, y=avg)) +
+  geom_line(color = "deeppink", linewidth = 1.5) +
+  theme_bw() +
+  scale_y_continuous(limits= c(0,20000), n.breaks = 6, labels = comma) +
+  scale_x_continuous(limits = c(1922, 2022), n.breaks = 8) +
+  labs( y = "Average Fire Size (Acres)", x = "Year") +
+  annotate("text", label = "A", x = 1925, y = 18000, size = 10)
+
+
+# How has wildfire number changed over time?
+
+df2 <- data.frame(year = data$FIREYEAR,
+                  ObjID = data$OBJECTID)
+q2 <- df2 %>% group_by(year) %>% summarise(fire_count = n())
+
+p2 <- ggplot(q2, aes(x=year, y=fire_count)) +
+  geom_line(color = "blue2", linewidth = 1.5) +
+  theme_bw() +
+  scale_y_continuous(n.breaks = 6, labels = comma) +
+  scale_x_continuous(limits = c(1922, 2022), n.breaks = 8) +
+  labs( y = "Count of Fires", x = "Year") +
+  annotate("text", label = "B", x = 1925, y = 1200, size = 10)
+
+
+# Stacking plots
+
+a <- ggplotGrob(p1)
+b <- ggplotGrob(p2)
+grid::grid.newpage()
+grid::grid.draw(rbind(a, b))
+
+
+```
+**Figure 1.** Two line plots displaying changes in the size and number of forest fires between 1922 and 2021. Plot A shows how the yearly average fire size (in acres) has varied over time while Plot B shows the general increase in the total number of forest fires per year, as recorded by the USDA Fire Service. Data for both plots was pulled from National USFS Fire Perimeter dataset from the USDA website and filtered to show data from 1922 to 2021.
+
+\newpage
+
+```{r code2, echo=FALSE}
+
+p3 <- ggplot(q1, aes(x=year, y=avg)) +
+  geom_line(color = "deeppink", linewidth = 1, linetype = "dotdash") +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 60000), n.breaks = 6, labels = comma) +
+  scale_x_continuous(limits = c(1922, 2022), n.breaks = 8) +
+  labs( y = "Average Fire Size (Acres)", x = "Year") +
+  annotate("text", label = "A", x = 1925, y = 50000, size = 10)
+
+p4 <- ggplot(q2, aes(x=year, y=fire_count)) +
+  geom_line(color = "blue2", linewidth = 1, linetype = "dotdash") +
+  theme_bw() +
+  scale_y_continuous(limits = c(0,5000), n.breaks = 6, labels = comma) +
+  scale_x_continuous(limits = c(1922, 2022), n.breaks = 8) +
+  labs( y = "Count of Fires", x = "Year") +
+  annotate("text", label = "B", x = 1925, y = 4500, size = 10)
+
+c <- ggplotGrob(p3)
+d <- ggplotGrob(p4)
+grid::grid.newpage()
+grid::grid.draw(rbind(c, d))
+
+```
+**Figure 2.** Two line plots displaying changes in the size and number of forest fires between 1922 and 2021. Plot A shows how the yearly average fire size (in acres) has not varied significantly through the years and Plot B shows that the total number of forest fires per year also have stayed consistent, as recorded by the USDA Fire Service. Data for both plots was pulled from National USFS Fire Perimeter dataset from the USDA website and filtered to show data from 1922 to 2021.
+
+\newpage
+
+# R Code Used To Make These Plots
+
+```{r code3, echo=TRUE, eval=FALSE}
+library(dplyr)
+library(ggplot2)
+library(rmarkdown)
+library(gridExtra)
+library(scales)
+
+path <- "/Users/meghanedgerton/Documents/DataVizINFO526
+/National_USFS_Fire_Perimeter_(Feature_Layer).csv"
+
+data <- read.csv(path)
+
+# Filtering data between the years of 1922- 2021,
+# and removing fires that were recorded as 0 acres
+
+data <- data %>% filter(FIREYEAR < 2022 & FIREYEAR > 1921 & TOTALACRES > 0) 
+```
+
+```{r code4, echo=TRUE, eval=FALSE}
+# How has wildfire size changed over time?
+
+df1 <- data.frame(year = data$FIREYEAR,
+                  totalacres = data$TOTALACRES)
+
+q1 <- df1 %>% group_by(year) %>% summarize(avg = mean(totalacres, na.rm = TRUE))
+
+
+p1 <- ggplot(q1, aes(x=year, y=avg)) +
+  geom_line(color = "deeppink", linewidth = 1.5) +
+  theme_bw() +
+  scale_y_continuous(limits= c(0,20000), n.breaks = 6, labels = comma) +
+  scale_x_continuous(limits = c(1922, 2022), n.breaks = 8) +
+  labs( y = "Average Fire Size (Acres)", x = "Year") +
+  annotate("text", label = "A", x = 1925, y = 18000, size = 10)
+
+```
+
+```{r code5, echo=TRUE, eval=FALSE}
+# How has wildfire number changed over time?
+
+df2 <- data.frame(year = data$FIREYEAR,
+                  ObjID = data$OBJECTID)
+q2 <- df2 %>% group_by(year) %>% summarise(fire_count = n())
+
+p2 <- ggplot(q2, aes(x=year, y=fire_count)) +
+  geom_line(color = "blue2", linewidth = 1.5) +
+  theme_bw() +
+  scale_y_continuous(n.breaks = 6, labels = comma) +
+  scale_x_continuous(limits = c(1922, 2022), n.breaks = 8) +
+  labs( y = "Count of Fires", x = "Year") +
+  annotate("text", label = "B", x = 1925, y = 1200, size = 10)
+
+```
+\newpage
+```{r code6, echo=TRUE, eval=FALSE}
+# Stacking plots
+
+a <- ggplotGrob(p1)
+b <- ggplotGrob(p2)
+grid::grid.newpage()
+grid::grid.draw(rbind(a, b))
+```
+
+```{r code7, echo=TRUE, eval=FALSE}
+# Illusion Plots
+
+p3 <- ggplot(q1, aes(x=year, y=avg)) +
+  geom_line(color = "deeppink", linewidth = 1, linetype = "dotdash") +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 60000), n.breaks = 6, labels = comma) +
+  scale_x_continuous(limits = c(1922, 2022), n.breaks = 8) +
+  labs( y = "Average Fire Size (Acres)", x = "Year") +
+  annotate("text", label = "A", x = 1925, y = 50000, size = 10)
+```
+
+```{r code8, echo=TRUE, eval=FALSE}
+p4 <- ggplot(q2, aes(x=year, y=fire_count)) +
+  geom_line(color = "blue2", linewidth = 1, linetype = "dotdash") +
+  theme_bw() +
+  scale_y_continuous(limits = c(0,5000), n.breaks = 6, labels = comma) +
+  scale_x_continuous(limits = c(1922, 2022), n.breaks = 8) +
+  labs( y = "Count of Fires", x = "Year") +
+  annotate("text", label = "B", x = 1925, y = 4500, size = 10)
+```
+
+```{r code9, echo=TRUE, eval=FALSE}
+c <- ggplotGrob(p3)
+d <- ggplotGrob(p4)
+grid::grid.newpage()
+grid::grid.draw(rbind(c, d))
+```
